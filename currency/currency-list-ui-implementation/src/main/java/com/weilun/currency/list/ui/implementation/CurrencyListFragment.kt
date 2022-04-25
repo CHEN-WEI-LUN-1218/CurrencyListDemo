@@ -13,8 +13,12 @@ import com.weilun.currency.list.ui.implementation.adapter.CurrencyListAdapter
 import com.weilun.currency.list.ui.implementation.factory.CurrencyIconFactory
 import com.weilun.currency.list.ui.implementation.factory.ViewHolderFactory
 import com.weilun.currency.list.ui.implementation.viewbinder.CurrencyListViewBinder
+import com.weilun.currency.list.ui.implementation.viewholder.CurrencyViewItemInteractor
 import com.weilun.currency.list.ui.implementation.viewmodel.CurrencyListViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -28,12 +32,15 @@ class CurrencyListFragment : Fragment() {
 
     private val resourcesProvider: ResourcesProvider by inject()
     private val imageLoader: ImageLoader by inject()
+    private val viewInteractor: CurrencyViewItemInteractor by inject()
+
     private val adapter: CurrencyListAdapter by lazy {
         CurrencyListAdapter(
             ViewHolderFactory(
                 LayoutInflater.from(requireContext()),
                 CurrencyIconFactory(lazy { resourcesProvider }),
-                lazy { imageLoader }
+                lazy { imageLoader },
+                lazy { viewInteractor }
             )
         )
     }
@@ -50,6 +57,11 @@ class CurrencyListFragment : Fragment() {
         super.onResume()
         lifecycleScope.launchWhenResumed {
             viewBinder.whenViewActionEmitted().collectLatest {
+                viewModel.handleViewAction(it)
+            }
+        }
+        lifecycleScope.launchWhenResumed {
+            viewInteractor.whenItemViewIntercept().collectLatest {
                 viewModel.handleViewAction(it)
             }
         }

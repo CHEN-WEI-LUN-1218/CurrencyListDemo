@@ -27,20 +27,12 @@ class CurrencyListAdapter(
         }
     }
 
-    private var listViewActionFlow: MutableSharedFlow<CurrencyListViewAction>? = null
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyItemViewHolder {
         return viewHolderFactory.create(parent)
     }
 
     override fun onBindViewHolder(holder: CurrencyItemViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bindView(item) {
-            listViewActionFlow?.tryEmit(CurrencyListViewAction.SelectItem(it))
-        }
-    }
-
-    fun setItemSelectedFlow(listViewActionFlow: MutableSharedFlow<CurrencyListViewAction>) {
-        this.listViewActionFlow = listViewActionFlow
+        holder.bindView(item)
     }
 }

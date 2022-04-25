@@ -5,16 +5,18 @@ import android.view.ViewGroup
 import com.weilun.core.utils.imageloder.ImageLoader
 import com.weilun.currency.list.ui.implementation.R
 import com.weilun.currency.list.ui.implementation.viewholder.CurrencyItemViewHolder
+import com.weilun.currency.list.ui.implementation.viewholder.CurrencyViewItemInteractor
 
 //Create ViewHolderFactory for later scaling
 class ViewHolderFactory(
     private val layoutInflater: LayoutInflater,
     private val currencyIconFactory: CurrencyIconFactory,
-    private val imageLoader: Lazy<ImageLoader>
+    private val imageLoader: Lazy<ImageLoader>,
+    private val interceptor: Lazy<CurrencyViewItemInteractor>
 ) {
 
     fun create(parent: ViewGroup): CurrencyItemViewHolder {
         val view = layoutInflater.inflate(R.layout.currency_item, parent, false)
-        return CurrencyItemViewHolder(view, currencyIconFactory, imageLoader)
+        return CurrencyItemViewHolder(view, currencyIconFactory, imageLoader, interceptor)
     }
 }

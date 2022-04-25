@@ -27,19 +27,24 @@ class CurrencyItemViewHolderTest {
     @Mock
     lateinit var imageLoader: ImageLoader
 
-    private lateinit var holder: CurrencyItemViewHolder
-
     @Mock
     lateinit var ivCurrencyIcon: AppCompatImageView
+
     @Mock
     lateinit var tvCurrencyName: AppCompatTextView
+
     @Mock
     lateinit var tvCurrencySymbol: AppCompatTextView
+
+    @Mock
+    lateinit var interactor: CurrencyViewItemInteractor
+
+    private lateinit var holder: CurrencyItemViewHolder
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        holder = CurrencyItemViewHolder(view, currencyIconFactory, lazy { imageLoader })
+        holder = CurrencyItemViewHolder(view, currencyIconFactory, lazy { imageLoader }, lazy { interactor })
         whenever(view.findViewById<AppCompatImageView>(R.id.ivCurrencyIcon)).thenReturn(ivCurrencyIcon)
         whenever(view.findViewById<AppCompatTextView>(R.id.tvCurrencyName)).thenReturn(tvCurrencyName)
         whenever(view.findViewById<AppCompatTextView>(R.id.tvCurrencySymbol)).thenReturn(tvCurrencySymbol)
@@ -49,7 +54,7 @@ class CurrencyItemViewHolderTest {
     fun bindView() {
         val mockDrawable = mock<Drawable>()
         whenever(currencyIconFactory.getIcon("symbol1")).thenReturn(mockDrawable)
-        holder.bindView(CurrencyData("id1", "name1", "symbol1")) {}
+        holder.bindView(CurrencyData("id1", "name1", "symbol1"))
         Mockito.verify(ivCurrencyIcon).setImageDrawable(mockDrawable)
         Mockito.verify(tvCurrencyName).text = "name1"
         Mockito.verify(tvCurrencySymbol).text = "symbol1"

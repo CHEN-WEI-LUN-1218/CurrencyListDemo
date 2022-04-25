@@ -3,12 +3,12 @@ package com.weilun.currencylistdemo.application
 import android.app.Application
 import android.os.SystemClock
 import android.util.Log
-import com.weilun.core.utils.log.DebugTree
 import com.weilun.core.analytics.bridge.AnalyticsKit
 import com.weilun.core.base.app.ApplicationInitializer
 import com.weilun.core.base.app.KoinComponentInjectable
 import com.weilun.core.base.metrics.AppStartAnalyticsConstant
 import com.weilun.core.base.metrics.AppStartTracer
+import com.weilun.core.utils.log.DebugTree
 import com.weilun.core.utils.log.ReleaseTree
 import com.weilun.core.utils.time.toTimeInMillis
 import com.weilun.currencylistdemo.BuildConfig
@@ -21,12 +21,6 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.TimeSource
 import kotlin.time.toDuration
 
-/**
- * This is the application for iAuditor it holds any
- * global methods or variables required.
- *
- * @author Joshua Wilson
- */
 @ExperimentalTime
 open class DemoApplication : Application(), KoinComponent, KoinComponentInjectable {
     //Use system clock to see how soon processor start to executed first line of our application

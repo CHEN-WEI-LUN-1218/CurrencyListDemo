@@ -9,6 +9,7 @@ import com.weilun.currency.list.core.bridge.model.CurrenciesSorting
 import com.weilun.currency.list.ui.implementation.model.CurrencyListViewAction
 import com.weilun.currency.list.ui.implementation.model.CurrencyListViewState
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +35,7 @@ class CurrencyListViewModel(
     }
 
     fun onPause() {
-        superVisorJob.cancel()
+        superVisorJob.cancelChildren()
     }
 
     fun handleViewAction(viewAction: CurrencyListViewAction) {

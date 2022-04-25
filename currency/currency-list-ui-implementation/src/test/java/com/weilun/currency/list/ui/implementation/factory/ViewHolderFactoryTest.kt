@@ -6,6 +6,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import com.weilun.core.utils.imageloder.ImageLoader
 import com.weilun.currency.list.ui.implementation.R
+import com.weilun.currency.list.ui.implementation.viewholder.CurrencyViewItemInteractor
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -37,12 +38,15 @@ class ViewHolderFactoryTest {
     @Mock
     lateinit var mockTvSymbol: AppCompatTextView
 
+    @Mock
+    lateinit var interactor: CurrencyViewItemInteractor
+
     private lateinit var factory: ViewHolderFactory
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        factory = ViewHolderFactory(layoutInflater, currencyIconFactory, lazy { imageLoader })
+        factory = ViewHolderFactory(layoutInflater, currencyIconFactory, lazy { imageLoader }, lazy { interactor })
     }
 
     @Test

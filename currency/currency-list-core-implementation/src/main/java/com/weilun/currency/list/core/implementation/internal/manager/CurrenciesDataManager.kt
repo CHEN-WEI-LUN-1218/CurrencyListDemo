@@ -17,7 +17,7 @@ class CurrenciesDataManager(
     private val factory: Lazy<CurrenciesStateFactory>,
 ) {
     private val currentSortingStateFlow: MutableStateFlow<CurrenciesSorting> by lazy {
-        MutableStateFlow(CurrenciesSorting.DESC)
+        MutableStateFlow(CurrenciesSorting.ASC)
     }
 
     fun whenCurrenciesDataStateChanged(): Flow<CurrencyState> {

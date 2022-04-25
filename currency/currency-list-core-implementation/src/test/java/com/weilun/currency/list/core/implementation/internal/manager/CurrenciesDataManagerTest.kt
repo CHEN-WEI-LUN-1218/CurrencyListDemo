@@ -51,9 +51,9 @@ class CurrenciesDataManagerTest {
         whenever(currenciesDao.getCurrencies()).thenReturn(flowOf(mockList))
         manager.whenCurrenciesDataStateChanged().test {
             val actual = expectItem()
-            Assert.assertEquals("id2", actual.currencies[0].id)
-            Assert.assertEquals("id1", actual.currencies[1].id)
-            Assert.assertEquals(CurrenciesSorting.DESC, actual.sortingState)
+            Assert.assertEquals("id1", actual.currencies[0].id)
+            Assert.assertEquals("id2", actual.currencies[1].id)
+            Assert.assertEquals(CurrenciesSorting.ASC, actual.sortingState)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -79,15 +79,15 @@ class CurrenciesDataManagerTest {
 
         manager.whenCurrenciesDataStateChanged().test {
             val actual = expectItem()
-            Assert.assertEquals("id2", actual.currencies[0].id)
-            Assert.assertEquals("id1", actual.currencies[1].id)
-            Assert.assertEquals(CurrenciesSorting.DESC, actual.sortingState)
+            Assert.assertEquals("id1", actual.currencies[0].id)
+            Assert.assertEquals("id2", actual.currencies[1].id)
+            Assert.assertEquals(CurrenciesSorting.ASC, actual.sortingState)
 
-            manager.sortCurrencies(CurrenciesSorting.ASC)
+            manager.sortCurrencies(CurrenciesSorting.DESC)
             val actual2 = expectItem()
-            Assert.assertEquals("id1", actual2.currencies[0].id)
-            Assert.assertEquals("id2", actual2.currencies[1].id)
-            Assert.assertEquals(CurrenciesSorting.ASC, actual2.sortingState)
+            Assert.assertEquals("id2", actual2.currencies[0].id)
+            Assert.assertEquals("id1", actual2.currencies[1].id)
+            Assert.assertEquals(CurrenciesSorting.DESC, actual2.sortingState)
         }
     }
 }

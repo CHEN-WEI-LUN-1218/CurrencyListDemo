@@ -9,21 +9,21 @@ import com.weilun.currency.list.core.bridge.model.CurrencyData
 import com.weilun.currency.list.ui.implementation.R
 import com.weilun.currency.list.ui.implementation.factory.CurrencyIconFactory
 import com.weilun.currency.list.ui.implementation.model.CurrencyListViewAction
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 class CurrencyItemViewHolder(
     private val view: View,
     private val currencyIconFactory: CurrencyIconFactory,
-    private val imageLoader: Lazy<ImageLoader>
+    private val imageLoader: Lazy<ImageLoader>,
+    private val interactor: Lazy<CurrencyViewItemInteractor>
 ) : RecyclerView.ViewHolder(view) {
 
     internal val ivCurrencyIcon: AppCompatImageView by lazy { view.findViewById(R.id.ivCurrencyIcon) }
     internal val tvCurrencyName: AppCompatTextView by lazy { view.findViewById(R.id.tvCurrencyName) }
     internal val tvCurrencySymbol: AppCompatTextView by lazy { view.findViewById(R.id.tvCurrencySymbol) }
 
-    fun bindView(currencyData: CurrencyData, itemSelected: (data: CurrencyData) -> Unit) {
+    fun bindView(currencyData: CurrencyData) {
         itemView.setOnClickListener {
-            itemSelected(currencyData)
+            interactor.value.intercept(CurrencyListViewAction.SelectItem(currencyData))
         }
         val drawable = currencyIconFactory.getIcon(currencyData.symbol)
         ivCurrencyIcon.setImageDrawable(drawable)
