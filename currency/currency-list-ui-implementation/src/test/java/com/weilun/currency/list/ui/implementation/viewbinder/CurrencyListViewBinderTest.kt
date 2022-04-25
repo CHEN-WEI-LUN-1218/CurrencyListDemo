@@ -73,6 +73,7 @@ import kotlin.time.ExperimentalTime
     fun whenViewActionEmitted() = runBlockingTest {
         viewBinder.whenViewActionEmitted().test {
             viewBinder.updateSorting()
+            viewBinder.updateSorting()
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }

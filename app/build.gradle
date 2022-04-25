@@ -5,6 +5,7 @@ plugins {
 
 apply from: '../lib-dependencies.gradle'
 apply plugin: 'kotlin-kapt'
+apply from: '../gradlescripts/jacoco.gradle'
 
 android {
     compileSdk rootProject.ext.androidCompilieVersion

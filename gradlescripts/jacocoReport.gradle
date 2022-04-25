@@ -1,6 +1,6 @@
 apply plugin: 'jacoco'
 
-def appTestPath = [':app']
+def appTestPath = [':app', ':core:core-base', ':currency:currency-list-core-implementation', ':currency:currency-list-ui-implementation']
 
 def fileFilter = [
         '**/R.*',
@@ -13,9 +13,19 @@ def fileFilter = [
         '**/*Activity*.*',
         '**/*Adapter*.*',
         '**/*ViewPager*.*',
-        '**/*ViewHolder*.*',
         '**/*Service*.*',
         '**/*BroadcastReceiver.*',
+        '**/*Injector.*',
+        '**/*Constant.*',
+        '**/*Tracer.*',
+        '**/*Module.*',
+        '**/*Module*.*',
+        '**/*ViewProvider*.*',
+        '**/*IconFactory*.*',
+        '**/*Injectable.*',
+        '**/*Dao.*',
+        '**/*Database*.*',
+        '**/*NetworkApi*.*',
         '**/test/**'
 ]
 
@@ -23,20 +33,6 @@ task jacocoReport_app(type: JacocoMerge) {
     def subModuleTasks = []
     subprojects.forEach {
         if (appTestPath.contains(it.path)) {
-            subModuleTasks.add("$it.path:jacocoCiFullTest")
-        }
-    }
-
-    dependsOn(subModuleTasks)
-
-    setDestinationFile(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
-    setExecutionData(project.fileTree(dir: '.', include: '**/build/jacoco/testCiDebugUnitTest.exec'))
-}
-
-task jacocoReport_modules(type: JacocoMerge) {
-    def subModuleTasks = []
-    subprojects.forEach {
-        if (modulePath.contains(it.path)) {
             subModuleTasks.add("$it.path:jacocoFullTest")
         }
     }
@@ -44,14 +40,13 @@ task jacocoReport_modules(type: JacocoMerge) {
     dependsOn(subModuleTasks)
 
     setDestinationFile(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
-    setExecutionData(project.fileTree(dir: '.', include: '**/build/jacoco/testCiDebugUnitTest.exec'))
-
+    setExecutionData(project.fileTree(dir: '.', include: '**/build/jacoco/testDebugUnitTest.exec'))
 }
 
 task jacocoMergeReport(type: JacocoReport) {
     description = 'Generates an aggregate report from all subprojects'
 
-    dependsOn(jacocoReport_app, jacocoReport_modules)
+    dependsOn(jacocoReport_app)
     def sourcesPaths = []
     def sourcesDirs = []
     def kotlinClasses = []
@@ -71,17 +66,8 @@ task jacocoMergeReport(type: JacocoReport) {
             sourcesDirs.add("$project.projectDir/src/main/java")
             kotlinClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/ciDebug", excludes: fileFilter))
             javaClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/ciDebug", excludes: fileFilter))
-        } else if (modulePath.contains(project.path)) {
-            sourcesPaths.add("$project.projectDir/src/main/java")
-            sourcesDirs.add("$project.projectDir/src/main/java")
-            kotlinClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter))
-            javaClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter))
         }
-        if (appTestPath.contains(project.path)) {
-            executionData.add(fileTree(dir: project.buildDir, includes: ['jacoco/testCiDebugUnitTest.exec']))
-        } else if (modulePath.contains(project.path)) {
-            executionData.add(fileTree(dir: project.buildDir, includes: ['jacoco/testDebugUnitTest.exec']))
-        }
+        executionData.add(fileTree(dir: project.buildDir, includes: ['jacoco/testDebugUnitTest.exec']))
     }
 
     getAdditionalSourceDirs().setFrom(sourcesPaths)
@@ -90,7 +76,7 @@ task jacocoMergeReport(type: JacocoReport) {
     getExecutionData().setFrom(executionData)
 
     doLast() {
-        generateJsonReport(subprojects, appTestPath + modulePath)
+        generateJsonReport(subprojects, appTestPath)
     }
 }
 

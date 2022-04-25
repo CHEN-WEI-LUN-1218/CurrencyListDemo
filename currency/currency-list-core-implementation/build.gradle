@@ -3,8 +3,7 @@ apply plugin: 'kotlin-android'
 apply from: '../../gradlescripts/base.gradle'
 apply from: '../../lib-dependencies.gradle'
 apply plugin: 'kotlin-kapt'
-
-//apply from: "../gradlescripts/jacoco.gradle"
+apply from: '../../gradlescripts/jacoco.gradle'
 
 dependencies {
     implementation Libs.KotlinStdLibJDK
