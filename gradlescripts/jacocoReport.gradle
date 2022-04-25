@@ -1,0 +1,213 @@
+apply plugin: 'jacoco'
+
+def appTestPath = [':app']
+
+def fileFilter = [
+        '**/R.*',
+        '**/R$*.*',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Application*.*',
+        '**/*Fragment*.*',
+        '**/*Dialog*.*',
+        '**/*Activity*.*',
+        '**/*Adapter*.*',
+        '**/*ViewPager*.*',
+        '**/*ViewHolder*.*',
+        '**/*Service*.*',
+        '**/*BroadcastReceiver.*',
+        '**/test/**'
+]
+
+task jacocoReport_app(type: JacocoMerge) {
+    def subModuleTasks = []
+    subprojects.forEach {
+        if (appTestPath.contains(it.path)) {
+            subModuleTasks.add("$it.path:jacocoCiFullTest")
+        }
+    }
+
+    dependsOn(subModuleTasks)
+
+    setDestinationFile(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
+    setExecutionData(project.fileTree(dir: '.', include: '**/build/jacoco/testCiDebugUnitTest.exec'))
+}
+
+task jacocoReport_modules(type: JacocoMerge) {
+    def subModuleTasks = []
+    subprojects.forEach {
+        if (modulePath.contains(it.path)) {
+            subModuleTasks.add("$it.path:jacocoFullTest")
+        }
+    }
+
+    dependsOn(subModuleTasks)
+
+    setDestinationFile(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
+    setExecutionData(project.fileTree(dir: '.', include: '**/build/jacoco/testCiDebugUnitTest.exec'))
+
+}
+
+task jacocoMergeReport(type: JacocoReport) {
+    description = 'Generates an aggregate report from all subprojects'
+
+    dependsOn(jacocoReport_app, jacocoReport_modules)
+    def sourcesPaths = []
+    def sourcesDirs = []
+    def kotlinClasses = []
+    def javaClasses = []
+    def executionData = []
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        html.destination file("${project.buildDir}/report/jacoco")
+        xml.destination file("${project.buildDir}/report/jacoco/report.xml")
+    }
+
+    subprojects.forEach { project ->
+        if (appTestPath.contains(project.path)) {
+            sourcesPaths.add("$project.projectDir/src/main/java")
+            sourcesDirs.add("$project.projectDir/src/main/java")
+            kotlinClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/ciDebug", excludes: fileFilter))
+            javaClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/ciDebug", excludes: fileFilter))
+        } else if (modulePath.contains(project.path)) {
+            sourcesPaths.add("$project.projectDir/src/main/java")
+            sourcesDirs.add("$project.projectDir/src/main/java")
+            kotlinClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter))
+            javaClasses.add(fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter))
+        }
+        if (appTestPath.contains(project.path)) {
+            executionData.add(fileTree(dir: project.buildDir, includes: ['jacoco/testCiDebugUnitTest.exec']))
+        } else if (modulePath.contains(project.path)) {
+            executionData.add(fileTree(dir: project.buildDir, includes: ['jacoco/testDebugUnitTest.exec']))
+        }
+    }
+
+    getAdditionalSourceDirs().setFrom(sourcesPaths)
+    getSourceDirectories().setFrom(files([sourcesDirs]))
+    getClassDirectories().setFrom(files([javaClasses, kotlinClasses]))
+    getExecutionData().setFrom(executionData)
+
+    doLast() {
+        generateJsonReport(subprojects, appTestPath + modulePath)
+    }
+}
+
+static generateJsonReport(Set<Project> subprojects, List<String> targetProjects) {
+    println("Start generate json coverage report")
+    def reportedFiles = []
+    List<CoverageModuleItem> reports = []
+    String appBuildDir = ""
+
+    subprojects.collect { project ->
+        if (targetProjects.contains(project.path)) {
+            String folder = getJacocoReportFolder(project)
+            CoverageModuleItem item = printTotalCoverageFromXml(project.name, new File("${folder}/report.xml"))
+            if (item.covered) {
+                reportedFiles.add("${folder}/index.html")
+            }
+            if (item.module.equals("app")) {
+                appBuildDir = "${project.buildDir}"
+            }
+            reports.add(item)
+        }
+    }
+
+
+    String jsonReportsPath = "$appBuildDir/modularReports/"
+    File parentFile = new File(jsonReportsPath)
+    File file = new File(jsonReportsPath + "/reports.txt")
+    parentFile.mkdir()
+    if (!file.exists()) {
+        file.createNewFile()
+    }
+
+    FileWriter reportWriter = new FileWriter(jsonReportsPath + "/reports.txt")
+
+    StringBuffer fileReport = new StringBuffer("")
+    StringBuffer jsonReport = new StringBuffer("[")
+    for (int i = 0; i < reports.size(); i++) {
+        CoverageModuleItem item = reports.get(i)
+        if (item.covered != null) {
+            if (i != 0) {
+                jsonReport.append(",")
+            }
+            jsonReport.append("\n\t")
+            jsonReport.append(item.toJson())
+            fileReport.append("\n\t")
+            fileReport.append(item.toReportString())
+        }
+    }
+    jsonReport.append("\n")
+    jsonReport.append("]")
+
+    reportWriter.write(fileReport.toString())
+    reportWriter.close()
+    try {
+        println(jsonReport)
+    } catch (Exception e) {
+        println("Error " + e.toString())
+    }
+}
+
+static String getJacocoReportFolder(Project project) {
+    return "${project.buildDir}/reports/jacoco"
+}
+
+static CoverageModuleItem printTotalCoverageFromXml(String module, File jacocoTestReport) {
+    if (!jacocoTestReport.exists()) {
+        return new CoverageModuleItem(module: module)
+    }
+
+    def coverageType = 'LINE'
+    def slurper = new XmlSlurper()
+    slurper.setFeature('http://apache.org/xml/features/disallow-doctype-decl', false)
+    slurper.setFeature('http://apache.org/xml/features/nonvalidating/load-external-dtd', false)
+
+    def report = slurper.parse(jacocoTestReport)
+    Long missed = report.counter.find { it.'@type' == coverageType }.@missed.toLong()
+    Long covered = report.counter.find { it.'@type' == coverageType }.@covered.toLong()
+    if (missed == null || covered == null) return new CoverageModuleItem(module, null, null, null)
+    long total = missed + covered
+    double coverage = (100 / (total.doubleValue()) * covered).round(2)
+    def result = new CoverageModuleItem(module, covered, total, coverage)
+    return result
+}
+
+class CoverageModuleItem {
+    public String module = null
+    public Long covered = 0
+    public Long total = 0
+    public Double coverage = 0.0
+
+    CoverageModuleItem() {}
+
+    CoverageModuleItem(String module, Long covered, Long total, Double coverage) {
+        this.module = module
+        this.covered = covered
+        this.total = total
+        this.coverage = coverage
+    }
+
+    @Override
+    String toString() {
+        if (covered) {
+            return "[ModuleName[$module] -> CoveredLines : ${covered}/${total}, CoverageRate : ${coverage}% ]"
+        } else {
+            return "[ModuleName[$module] -> not covered]"
+        }
+    }
+
+    String toReportString() {
+        if (covered) {
+            return "Module[$module] -> Covered Lines : ${covered}/${total}, Rate : ${coverage}%"
+        } else {
+            return "Module[$module] -> not covered"
+        }
+    }
+
+    String toJson() {
+        return "{\"covered_lines\": ${covered}, \"name\": \"${module}\", \"total_lines\": ${total}, \"coverage_rate\" : ${coverage} }"
+    }
+}

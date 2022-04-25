@@ -1,0 +1,70 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: '../lib-dependencies.gradle'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdk rootProject.ext.androidCompilieVersion
+
+    defaultConfig {
+        applicationId "com.weilun.currencylistdemo"
+        minSdk rootProject.ext.androidMinSdkVersion
+        targetSdk rootProject.ext.androidTargetVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            debuggable = true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation Libs.Ktx
+    implementation Libs.AppCompat
+    implementation Libs.MaterialComponents
+    implementation Libs.ConstraintLayout
+    implementation Libs.KoinCore
+    implementation Libs.KoinAndroid
+    implementation Libs.KotlinCorourineAndroid
+    implementation Libs.Timber
+
+    implementation project(":core:core-applogic")
+    implementation project(":core:core-base")
+    implementation project(":core:core-utils")
+    implementation project(":core:core-analytics-implementation")
+    implementation project(":core:core-analytics-bridge")
+
+    implementation project(":currency:currency-list-core-bridge")
+    implementation project(":currency:currency-list-core-implementation")
+    implementation project(":currency:currency-list-ui-bridge")
+    implementation project(":currency:currency-list-ui-implementation")
+
+    testImplementation TestLibs.Junit
+    testImplementation TestLibs.MockitoKotlin
+    testImplementation TestLibs.MockitoCore
+    testImplementation TestLibs.MockitoAndroid
+    testImplementation TestLibs.Turbine
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

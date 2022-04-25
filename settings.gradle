@@ -1,0 +1,26 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "CurrencyListDemo"
+include ':app'
+include ':core:core-applogic'
+include ':core:core-base'
+include ':core:core-utils'
+include ':core:core-analytics-bridge'
+include ':core:core-analytics-implementation'
+include ':currency:currency-list-core-bridge'
+include ':currency:currency-list-ui-implementation'
+include ':currency:currency-list-ui-bridge'
+include ':currency:currency-list-core-implementation'
+include ':components:icon'

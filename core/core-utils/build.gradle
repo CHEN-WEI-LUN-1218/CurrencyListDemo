@@ -1,0 +1,14 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply from: '../../gradlescripts/base.gradle'
+apply from: '../../lib-dependencies.gradle'
+//apply from: "../gradlescripts/jacoco.gradle"
+
+dependencies {
+    implementation Libs.KotlinStdLibJDK
+    implementation Libs.KoinCore
+    implementation Libs.KotlinCorourineAndroid
+    implementation Libs.AppCompat
+    implementation Libs.Glide
+    implementation Libs.Timber
+}

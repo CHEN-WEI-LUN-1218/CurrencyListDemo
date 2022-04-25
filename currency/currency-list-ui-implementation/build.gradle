@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply from: '../../gradlescripts/base.gradle'
+apply from: '../../lib-dependencies.gradle'
+//apply from: "../gradlescripts/jacoco.gradle"
+
+dependencies {
+    implementation Libs.KotlinStdLibJDK
+    implementation Libs.KoinCore
+    implementation Libs.KoinAndroid
+
+    implementation Libs.Fragment
+    implementation Libs.ViewModel
+    implementation Libs.RecyclerView
+    implementation Libs.ConstraintLayout
+    implementation Libs.MaterialComponents
+    implementation project(":currency:currency-list-ui-bridge")
+    implementation project(":currency:currency-list-core-bridge")
+    implementation project(":core:core-utils")
+    implementation project(":components:icon")
+
+    testImplementation TestLibs.Junit
+    testImplementation TestLibs.MockitoKotlin
+    testImplementation TestLibs.MockitoCore
+    testImplementation TestLibs.MockitoAndroid
+    testImplementation TestLibs.Turbine
+    testImplementation TestLibs.KotlinXCoroutinesTest
+}

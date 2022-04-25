@@ -1,0 +1,23 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply from: '../../gradlescripts/base.gradle'
+apply from: '../../lib-dependencies.gradle'
+//apply from: "../gradlescripts/jacoco.gradle"
+
+dependencies {
+    implementation Libs.KotlinStdLibJDK
+    implementation Libs.KoinCore
+    implementation Libs.KotlinCorourineAndroid
+
+    implementation project(":core:core-applogic")
+    implementation project(":core:core-utils")
+
+    implementation project(":currency:currency-list-core-implementation")
+
+    testImplementation TestLibs.Junit
+    testImplementation TestLibs.MockitoKotlin
+    testImplementation TestLibs.MockitoCore
+    testImplementation TestLibs.MockitoAndroid
+    testImplementation TestLibs.Turbine
+    testImplementation TestLibs.KotlinXCoroutinesTest
+}

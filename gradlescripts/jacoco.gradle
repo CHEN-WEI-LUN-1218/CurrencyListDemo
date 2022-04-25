@@ -1,0 +1,101 @@
+apply plugin: 'jacoco'
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+def fileFilter = [
+        '**/R.*',
+        '**/R$*.*',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Application*.*',
+        '**/*Fragment*.*',
+        '**/*Dialog*.*',
+        '**/*Activity*.*',
+        '**/*Adapter*.*',
+        '**/*View*.*',
+        '**/*Repository*.*',
+        '**/*Service*.*',
+        '**/*BroadcastReceiver.*',
+        '**/test/**'
+]
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+task jacocoFullTest(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
+    group "${project.name}"
+    description "Generate Jacoco coverage reports."
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        html.destination file("${project.buildDir}/reports/jacoco")
+        xml.destination file("${project.buildDir}/reports/jacoco/report.xml")
+    }
+
+    def javaClasses = []
+    def kotlinClasses = []
+    def javaSrc = []
+    def kotlinSrc = []
+    def execution = []
+
+    javaClasses << fileTree(dir: "$project.buildDir/intermediates/javac/debug", excludes: fileFilter)
+    kotlinClasses << fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    javaSrc << "$project.projectDir/src/main/java"
+    kotlinSrc << "$project.projectDir/src/main/kotlin"
+    execution << fileTree(dir: project.buildDir,
+            includes: ['jacoco/testDebugUnitTest.exec'])
+
+    getSourceDirectories().setFrom(files([javaSrc, kotlinSrc]))
+    getClassDirectories().setFrom(files([javaClasses, kotlinClasses]))
+
+
+    print execution
+
+    getExecutionData().setFrom(files(execution))
+
+    doLast() {
+        print "file://${reports.html.destination}/index.html"
+    }
+}
+
+task jacocoCiFullTest(type: JacocoReport, dependsOn: ['testCiDebugUnitTest']) {
+    group "${project.name}"
+    description "Generate Jacoco coverage reports."
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        html.destination file("${project.buildDir}/reports/jacoco")
+        xml.destination file("${project.buildDir}/reports/jacoco/report.xml")
+    }
+
+    def javaClasses = []
+    def kotlinClasses = []
+    def javaSrc = []
+    def kotlinSrc = []
+    def execution = []
+
+    javaClasses << fileTree(dir: "$project.buildDir/intermediates/javac/ciDebug", excludes: fileFilter)
+    kotlinClasses << fileTree(dir: "$project.buildDir/tmp/kotlin-classes/ciDebug", excludes: fileFilter)
+    javaSrc << "$project.projectDir/src/main/java"
+    kotlinSrc << "$project.projectDir/src/main/kotlin"
+    execution << fileTree(dir: project.buildDir,
+            includes: ['jacoco/testCiDebugUnitTest.exec'])
+
+    getSourceDirectories().setFrom(files([javaSrc, kotlinSrc]))
+    getClassDirectories().setFrom(files([javaClasses, kotlinClasses]))
+
+
+    print execution
+
+    getExecutionData().setFrom(files(execution))
+
+    doLast() {
+        print "file://${reports.html.destination}/index.html"
+    }
+}

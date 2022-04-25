@@ -1,0 +1,7 @@
+android {
+    compileSdk rootProject.ext.androidCompilieVersion
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
